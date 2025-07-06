@@ -1,22 +1,185 @@
- Draft 1 – Protein Structure Validator
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+#include <cstdlib>
+#include <ctime>
+#include <climits>
+#include <queue>
+#include <algorithm> 
+using namespace std;
 
- Overview:
-- This version allows manual input of amino acid sequences.
-- Builds a graph model of the protein.
-- Simulates a misfold by inserting a random edge.
-- Labels amino acids with type and charge.
-- Detects cycles in the graph (misfold detection).
-- Calculates the minimum-energy folding path using Dijkstra’s algorithm.
+struct AminoAcid {
+    string name;
+    string type;
+    string charge;
+};
 
- Features Used:
-- Graph data structure
-- Random edge insertion
-- Cycle detection
-- Shortest path (Dijkstra)
+unordered_map<char, AminoAcid> aminoTable = {
+    {'A', {"Ala", "Hydrophobic", "Neutral"}},
+    {'C', {"Cys", "Hydrophobic", "Neutral"}},
+    {'D', {"Asp", "Hydrophilic", "Negative"}},
+    {'E', {"Glu", "Hydrophilic", "Negative"}},
+    {'F', {"Phe", "Hydrophobic", "Neutral"}},
+    {'G', {"Gly", "Hydrophobic", "Neutral"}},
+    {'H', {"His", "Hydrophilic", "Positive"}},
+    {'I', {"Ile", "Hydrophobic", "Neutral"}},
+    {'K', {"Lys", "Hydrophilic", "Positive"}},
+    {'L', {"Leu", "Hydrophobic", "Neutral"}},
+    {'M', {"Met", "Hydrophobic", "Neutral"}},
+    {'N', {"Asn", "Hydrophilic", "Neutral"}},
+    {'P', {"Pro", "Hydrophobic", "Neutral"}},
+    {'Q', {"Gln", "Hydrophilic", "Neutral"}},
+    {'R', {"Arg", "Hydrophilic", "Positive"}},
+    {'S', {"Ser", "Hydrophilic", "Neutral"}},
+    {'T', {"Thr", "Hydrophilic", "Neutral"}},
+    {'V', {"Val", "Hydrophobic", "Neutral"}},
+    {'W', {"Trp", "Hydrophobic", "Neutral"}},
+    {'Y', {"Tyr", "Hydrophilic", "Neutral"}}
+};
 
- How to Compile:
-Use any C++17 compiler. For Code::Blocks:
-- Enable `-std=c++17` in build settings.
+vector<char> sequence;
+vector<vector<pair<int, int>>> graph; 
+int N;
 
- Sample Input: MKTAYIA
+void readManualInput() {
+    cout << "Enter amino acid sequence (single-letter codes, no spaces): ";
+    string input;
+    cin >> input;
+    for (char c : input) {
+        if (aminoTable.count(c)) {
+            sequence.push_back(c);
+        } else {
+            cout << "Unknown amino acid: " << c << " skipped." << endl;
+        }
+    }
+    N = sequence.size();
+}
 
+void buildGraph() {
+    graph.assign(N, vector<pair<int, int>>());
+    for (int i = 0; i < N - 1; i++) {
+        int energy = 1 + rand() % 10;
+        graph[i].push_back(make_pair(i + 1, energy));
+    }
+}
+
+void insertRandomMisfoldEdge() {
+    if (N < 3) return;
+    int a = rand() % N;
+    int b = rand() % N;
+    while (a == b) b = rand() % N;
+    int energy = 1 + rand() % 10;
+    graph[a].push_back(make_pair(b, energy));
+    cout << "Misfold Simulated: Edge added from position " << a + 1 << " to " << b + 1
+         << " (Energy = " << energy << ")" << endl;
+}
+
+void showAminoProperties() {
+    cout << "\nAmino Acid Properties:\n";
+    for (int i = 0; i < N; i++) {
+        char aa = sequence[i];
+        AminoAcid info = aminoTable[aa];
+        cout << "Position " << i + 1 << ": " << info.name
+             << " (" << info.type << ", " << info.charge << ")" << endl;
+    }
+}
+
+bool detectCycleUtil(int node, vector<bool>& visited, vector<bool>& recStack) {
+    visited[node] = true;
+    recStack[node] = true;
+
+    for (size_t i = 0; i < graph[node].size(); ++i) {
+        int neighbor = graph[node][i].first;
+        if (!visited[neighbor] && detectCycleUtil(neighbor, visited, recStack))
+            return true;
+        else if (recStack[neighbor])
+            return true;
+    }
+
+    recStack[node] = false;
+    return false;
+}
+
+bool hasCycle() {
+    vector<bool> visited(N, false), recStack(N, false);
+    for (int i = 0; i < N; i++) {
+        if (!visited[i]) {
+            if (detectCycleUtil(i, visited, recStack))
+                return true;
+        }
+    }
+    return false;
+}
+
+void simulateEnergyPath() {
+    cout << "\nSimulating Minimum-Energy Path..." << endl;
+
+    vector<int> dist(N, INT_MAX);
+    vector<int> prev(N, -1);
+    dist[0] = 0;
+
+    typedef pair<int, int> P;
+    priority_queue<P, vector<P>, greater<P>> pq;
+    pq.push(make_pair(0, 0));
+
+    while (!pq.empty()) {
+        P top = pq.top(); pq.pop();
+        int d = top.first;
+        int u = top.second;
+
+        if (d > dist[u]) continue;
+
+        for (size_t i = 0; i < graph[u].size(); ++i) {
+            int v = graph[u][i].first;
+            int w = graph[u][i].second;
+            if (dist[u] + w < dist[v]) {
+                dist[v] = dist[u] + w;
+                prev[v] = u;
+                pq.push(make_pair(dist[v], v));
+            }
+        }
+    }
+
+    if (dist[N - 1] == INT_MAX) {
+        cout << "No path to last amino acid." << endl;
+        return;
+    }
+
+    vector<int> path;
+    for (int at = N - 1; at != -1; at = prev[at])
+        path.push_back(at);
+    reverse(path.begin(), path.end());
+
+    cout << "Minimum-Energy Path (Total Cost = " << dist[N - 1] << "):" << endl;
+    for (size_t i = 0; i < path.size(); i++) {
+        int idx = path[i];
+        cout << sequence[idx] << "(" << idx + 1 << ")";
+        if (i != path.size() - 1)
+            cout << " -> ";
+    }
+    cout << endl;
+}
+
+int main() {
+    srand(time(0));
+    cout << "Protein Energy Path Validator" << endl;
+    readManualInput();
+
+    if (sequence.empty()) {
+        cout << "No valid amino acids entered. Exiting." << endl;
+        return 1;
+    }
+
+    buildGraph();
+    insertRandomMisfoldEdge();
+    showAminoProperties();
+
+    if (hasCycle())
+        cout << "\nMisfold Detected: Cycle found in protein graph." << endl;
+    else
+        cout << "\nValid Fold: No cycles detected." << endl;
+
+    simulateEnergyPath();
+
+    return 0;
+}
