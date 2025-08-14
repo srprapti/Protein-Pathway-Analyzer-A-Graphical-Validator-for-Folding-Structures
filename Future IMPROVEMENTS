@@ -1,0 +1,9 @@
+
+
+Add glowing animation effects for highlighted paths.
+
+Integrate PDB file parsing for real protein structures.
+
+Export graphs as images or interactive web visualizations.
+
+Support 3D visualization using OpenGL or PyMol integration.
