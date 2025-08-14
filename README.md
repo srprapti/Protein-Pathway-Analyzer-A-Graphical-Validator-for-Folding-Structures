@@ -22,12 +22,7 @@ Responsive UI: Graph layout adapts to window resizing.
 
 Color-Coded Nodes and Edges: Easily distinguish normal residues, misfold edges, and highlighted paths.
 
-Installation
-
-Clone the repository:
-
-git clone https://github.com/your-username/protein-pathway-analyzer.git
-cd protein-pathway-analyzer
+Installation:
 
 
 Install Python dependencies:
