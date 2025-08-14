@@ -1,37 +1,61 @@
-# Protein Energy Path Validator with GUI
+Protein Pathway Analyzer
 
-## Overview
-This project analyzes an amino acid sequence, simulates protein folding as an energy-weighted graph, detects misfolds (cycles), finds the minimum-energy folding path, and visualizes it using an SFML-based GUI.
+A Tkinter-based interactive tool for visualizing and analyzing protein structures as graphs.
 
-## Features
-- Input amino acid sequences (single-letter codes)  
-- Graph construction with energy weights  
-- Misfold simulation (random extra edges)  
-- Cycle detection for misfolds  
-- Shortest path (minimum-energy) calculation  
-- GUI visualization with clickable amino acid nodes showing properties  
+This project allows users to input an amino acid sequence, visualize it as a circular protein graph, detect misfolds/cycles, insert random misfold edges, and animate the minimum-energy pathway between residues. It also provides detailed amino acid information on click.
 
-## Project Files
-- `main.cpp`: Core logic and graph processing  
-- `gui.cpp` / `gui.hpp`: SFML GUI rendering and interaction  
-- `LiberationSans-Regular.ttf`: Font for GUI text  
-- `README.md`: Project documentation  
+Features
 
-## Requirements
-- C++11+ compiler  
-- SFML library installed (https://www.sfml-dev.org/tutorials/2.5/)  
-- Font file included  
+Custom Sequence Input: Enter any valid amino acid sequence and generate the corresponding protein graph.
 
-## Build & Run
-```bash
-g++ main.cpp gui.cpp -o protein_app -lsfml-graphics -lsfml-window -lsfml-system
-./protein_app
+Graph Visualization: Displays residues as circular nodes with edges representing the protein backbone or misfold connections.
+
+Animated Shortest-Energy Path: Highlights the minimum-energy path dynamically and keeps the path permanently highlighted after animation.
+
+Cycle Detection: Detects potential misfolds in the protein graph.
+
+Interactive Node Inspection: Click on any node to view amino acid properties (name, type, charge).
+
+Misfold Simulation: Insert random edges to simulate potential misfolding or unusual connections.
+
+Responsive UI: Graph layout adapts to window resizing.
+
+Color-Coded Nodes and Edges: Easily distinguish normal residues, misfold edges, and highlighted paths.
+
+Installation
+
+Clone the repository:
+
+git clone https://github.com/your-username/protein-pathway-analyzer.git
+cd protein-pathway-analyzer
+
+
+Install Python dependencies:
+
+This project only uses Python’s standard library (tkinter, random, math, heapq, collections), so no additional packages are required.
+
+Make sure you have Python 3.x installed with Tkinter support.
+
+Run the application:
+
+python protein_pathway_analyzer.py
 
 Usage
-Enter the amino acid sequence when prompted.
 
-View misfold detection and minimum-energy path in the console.
+Launch the application.
 
-GUI shows protein graph with edges and nodes colored by role.
+Enter your amino acid sequence (e.g., ACDEFGHIKLMNPQRSTVWY) in the entry field.
 
-Click nodes to see amino acid properties in console.
+Click Build Graph to generate the protein structure.
+
+Use the buttons to:
+
+Insert Misfold Edge
+
+Detect Cycles
+
+Animate Shortest Energy Path
+
+Reset the graph
+
+Click any node to view detailed amino acid properties in the status bar.
