@@ -1,0 +1,6 @@
+protein-pathway-analyzer/
+│
+├─ protein_pathway_analyzer.py   # Main Tkinter GUI and logic
+├─ README.md                     # Project description and usage
+└─ screenshots/                  # Example screenshots
+
